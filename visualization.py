@@ -317,18 +317,33 @@ def main(argv=None) -> int:
         led_plot.addItem(b_curve)
         freq_label = pg.LabelItem('')
 
-        def freq_slider_change(tick):
-            minf = freq_slider.tickValue(0) ** 2.0 * (config.MIC_RATE / 2.0)
-            maxf = freq_slider.tickValue(1) ** 2.0 * (config.MIC_RATE / 2.0)
-            freq_label.setText('Frequency range: {:.0f} - {:.0f} Hz'.format(minf, maxf))
+        # PATCH: improved frequency slider update handler using pyqtgraph signal
+        def freq_slider_change(*_):
+            try:
+                minf = freq_slider.tickValue(0) ** 2.0 * (config.MIC_RATE / 2.0)
+                maxf = freq_slider.tickValue(1) ** 2.0 * (config.MIC_RATE / 2.0)
+            except Exception as e:
+                print('freq_slider_change error reading ticks:', e)
+                return
             config.MIN_FREQUENCY = minf
             config.MAX_FREQUENCY = maxf
-            dsp.create_mel_bank()
+            freq_label.setText('Frequency range: {:.0f} - {:.0f} Hz'.format(minf, maxf))
+            try:
+                dsp.create_mel_bank()
+            except Exception as e:
+                print('freq_slider_change mel bank error:', e)
+            print('Updated frequency range to {:.0f}-{:.0f} Hz'.format(minf, maxf))
 
         freq_slider = pg.TickSliderItem(orientation='bottom', allowAdd=False)
         freq_slider.addTick((config.MIN_FREQUENCY / (config.MIC_RATE / 2.0)) ** 0.5)
         freq_slider.addTick((config.MAX_FREQUENCY / (config.MIC_RATE / 2.0)) ** 0.5)
-        freq_slider.tickMoveFinished = freq_slider_change
+        if hasattr(freq_slider, 'sigTicksChanged'):
+            try:
+                freq_slider.sigTicksChanged.connect(freq_slider_change)  # type: ignore[attr-defined]
+            except Exception:
+                freq_slider.tickMoveFinished = freq_slider_change  # type: ignore[attr-defined]
+        else:
+            freq_slider.tickMoveFinished = freq_slider_change  # type: ignore[attr-defined]
         freq_label.setText('Frequency range: {} - {} Hz'.format(
             config.MIN_FREQUENCY,
             config.MAX_FREQUENCY))
