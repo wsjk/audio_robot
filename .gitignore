@@ -1,4 +1,58 @@
+# Build directories
+build/
+cmake-build-*/
+
+# Compiled binaries
+*.o
+*.a
+*.so
+*.dylib
+*.exe
+audio_reactive_robot
+test_audio_capture
+test_fft
+test_servo
+
+# CMake
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+*.cmake
+!CMakeLists.txt
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
 .DS_Store
-.ipynb_checkpoints/
-Untitled*.ipynb
+
+# Test files
+*.wav
+test.wav
+test_*.wav
+
+# Logs
+*.log
+logs/
+
+# Python cache (if any Python scripts)
 __pycache__/
+*.pyc
+*.pyo
+
+# Backup files
+*.bak
+*.backup
+*~
+
+# Documentation builds
+docs/html/
+docs/latex/
+
+# Personal notes
+notes.txt
+TODO.txt
+
